@@ -118,6 +118,17 @@ def start_server(host='0.0.0.0', port=9525):
         print(f"Conexión establecida con {client_address}")
 
         try:
+            # Enviar confirmación de conexión
+            confirmation_message = b'\x01'  # Mensaje de confirmación (01 en hexadecimal)
+            try:
+                bytes_sent = client_socket.sendall(confirmation_message)
+                if bytes_sent is None:
+                    print("Mensaje de confirmación enviado correctamente")
+                else:
+                    print(f"Mensaje de confirmación enviado, bytes enviados: {bytes_sent}")
+            except Exception as e:
+                print(f"Error al enviar el mensaje de confirmación: {e}")
+
             while True:
                 data = client_socket.recv(1024)
                 if data:
@@ -130,6 +141,7 @@ def start_server(host='0.0.0.0', port=9525):
                     if codec8_data:
                         print(f"Datos Codec 8 extendido deserializados: {codec8_data}")
                 else:
+                    print("El dispositivo ha cerrado la conexión")
                     break
         finally:
             client_socket.close()
