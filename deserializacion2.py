@@ -2,49 +2,45 @@ import socket
 import struct
 
 def parse_codec8_extended(data):
-    # Verifica si la longitud de los datos es suficiente
     if len(data) < 12:
         print("Datos incompletos")
         return None
 
     try:
-        # Desempaqueta la cabecera y el campo de eventos
+        # Extraer el encabezado
         preamble = data[:4]
-        data_field_length = struct.unpack('!H', data[4:6])[0]  # Ajuste a 2 bytes
-        codec_id = data[6]
-        number_of_data = data[7]
-        
+        data_field_length = struct.unpack('!I', data[4:8])[0]
+        codec_id = data[8]
+        number_of_data = data[9]
+
         print(f"Encabezado del paquete de datos AVL:")
         print(f"Preamble: {preamble.hex()}")
-        print(f"Data Field Length: {data_field_length:04X}")
+        print(f"Data Field Length: {data_field_length:08X}")
         print(f"Codec ID: {codec_id:02X}")
         print(f"Number of Data: {number_of_data:02X}")
 
-        offset = 8
+        offset = 10
         avl_data_list = []
 
         for _ in range(number_of_data):
-            if len(data) >= offset + 24:  # Asegura que haya suficientes datos para extraer un paquete AVL
-                timestamp = struct.unpack('!Q', data[offset:offset+8])[0]  # Timestamp en milisegundos
+            if len(data) >= offset + 24:
+                timestamp = struct.unpack('!Q', data[offset:offset+8])[0]
                 priority = data[offset+8]
-
-                longitude = struct.unpack('!i', data[offset+9:offset+13])[0]  # Longitud
-                latitude = struct.unpack('!i', data[offset+13:offset+17])[0]  # Latitud
-                altitude = struct.unpack('!H', data[offset+17:offset+19])[0]  # Altitud
-                angle = struct.unpack('!H', data[offset+19:offset+21])[0]     # Ángulo
-                satellites = data[offset+21]                                 # Número de satélites
-                speed = struct.unpack('!H', data[offset+22:offset+24])[0]    # Velocidad
+                longitude = struct.unpack('!i', data[offset+9:offset+13])[0]
+                latitude = struct.unpack('!i', data[offset+13:offset+17])[0]
+                altitude = struct.unpack('!H', data[offset+17:offset+19])[0]
+                angle = struct.unpack('!H', data[offset+19:offset+21])[0]
+                satellites = data[offset+21]
+                speed = struct.unpack('!H', data[offset+22:offset+24])[0]
 
                 offset += 24
 
-                # Número de elementos IO
                 event_id = data[offset]
                 total_io_elements = data[offset+1]
                 offset += 2
 
                 io_elements = {'1B': {}, '2B': {}, '4B': {}, '8B': {}}
 
-                # Lectura de IO elements
                 io_count_1B = data[offset]
                 offset += 1
                 for _ in range(io_count_1B):
@@ -95,9 +91,8 @@ def parse_codec8_extended(data):
                 print("Datos insuficientes para extraer un AVL Data Packet completo")
                 return None
 
-        # Ajuste para CRC a 32 bits
-        crc = struct.unpack('!I', data[-4:])[0]  # CRC-32 en vez de CRC-16
-        print(f"CRC-32: {crc:08X}")
+        crc = struct.unpack('!H', data[-2:])[0]  # Asumiendo CRC-16 como 2 bytes
+        print(f"CRC-16: {crc:04X}")
 
         return {
             "preamble": preamble,
@@ -107,7 +102,6 @@ def parse_codec8_extended(data):
             "avl_data_list": avl_data_list,
             "crc": crc
         }
-
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
         return None
@@ -123,28 +117,43 @@ def start_server(host='0.0.0.0', port=9525):
         print(f"Conexión establecida con {client_address}")
 
         try:
-            # Enviar confirmación de conexión
-            confirmation_message = b'\x01'  # Mensaje de confirmación (01 en hexadecimal)
-            try:
-                client_socket.sendall(confirmation_message)
-                print("Mensaje de confirmación enviado correctamente")
-            except Exception as e:
-                print(f"Error al enviar el mensaje de confirmación: {e}")
+            # Leer IMEI
+            imei_length_data = client_socket.recv(2)
+            imei_length = struct.unpack('!H', imei_length_data)[0]
+            imei_data = client_socket.recv(imei_length)
+            imei = imei_data.decode('ascii')
+            print(f"IMEI recibido: {imei}")
+
+            # Validar IMEI
+            imei_valid = True  # Cambiar según la lógica de validación
+            confirmation_message = b'\x01' if imei_valid else b'\x00'
+            client_socket.sendall(confirmation_message)
+            print(f"Mensaje de confirmación de IMEI enviado: {confirmation_message.hex()}")
+
+            if not imei_valid:
+                print("IMEI no válido, cerrando conexión")
+                continue
 
             while True:
-                data = client_socket.recv(4096)  # Ajusta el tamaño del búfer a 4096 bytes
-                if data:
-                    # Imprime los datos recibidos en formato hexadecimal
-                    print(f"Datos recibidos: {data}")
-                    print(f"Datos recibidos (hex): {data.hex()}")
-
-                    # Intentar deserializar los datos
-                    codec8_data = parse_codec8_extended(data)
-                    if codec8_data:
-                        print(f"Datos Codec 8 extendido deserializados: {codec8_data}")
-                else:
+                data = client_socket.recv(1024)
+                if not data:
                     print("El dispositivo ha cerrado la conexión")
                     break
+
+                # Procesar datos AVL si están disponibles
+                print(f"Datos recibidos: {data}")
+                print(f"Datos recibidos (hex): {data.hex()}")
+
+                codec8_data = parse_codec8_extended(data)
+                if codec8_data:
+                    print(f"Datos Codec 8 extendido deserializados: {codec8_data}")
+
+                    # Confirmar recepción de datos
+                    num_data_received = len(codec8_data['avl_data_list'])
+                    confirmation_data = struct.pack('!I', num_data_received)
+                    client_socket.sendall(confirmation_data)
+                    print(f"Mensaje de confirmación de datos enviado: {confirmation_data.hex()}")
+
         finally:
             client_socket.close()
             print(f"Conexión cerrada con {client_address}")
