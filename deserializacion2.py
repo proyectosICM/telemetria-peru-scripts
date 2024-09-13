@@ -7,10 +7,17 @@ def parse_codec8_extended(data):
         return None
 
     try:
+        # Extraer el encabezado
         preamble = data[:4]
         data_field_length = struct.unpack('!I', data[4:8])[0]
         codec_id = data[8]
         number_of_data = data[9]
+
+        print(f"Encabezado del paquete de datos AVL:")
+        print(f"Preamble: {preamble.hex()}")
+        print(f"Data Field Length: {data_field_length:08X}")
+        print(f"Codec ID: {codec_id:02X}")
+        print(f"Number of Data: {number_of_data:02X}")
 
         offset = 10
         avl_data_list = []
@@ -85,6 +92,7 @@ def parse_codec8_extended(data):
                 return None
 
         crc = struct.unpack('!H', data[-2:])[0]  # Asumiendo CRC-16 como 2 bytes
+        print(f"CRC-16: {crc:04X}")
 
         return {
             "preamble": preamble,
@@ -120,6 +128,7 @@ def start_server(host='0.0.0.0', port=9525):
             imei_valid = True  # Cambiar según la lógica de validación
             confirmation_message = b'\x01' if imei_valid else b'\x00'
             client_socket.sendall(confirmation_message)
+            print(f"Mensaje de confirmación de IMEI enviado: {confirmation_message.hex()}")
 
             if not imei_valid:
                 print("IMEI no válido, cerrando conexión")
@@ -143,6 +152,7 @@ def start_server(host='0.0.0.0', port=9525):
                     num_data_received = len(codec8_data['avl_data_list'])
                     confirmation_data = struct.pack('!I', num_data_received)
                     client_socket.sendall(confirmation_data)
+                    print(f"Mensaje de confirmación de datos enviado: {confirmation_data.hex()}")
 
         finally:
             client_socket.close()
