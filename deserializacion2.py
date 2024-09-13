@@ -8,11 +8,11 @@ def parse_codec8_extended(data):
 
     try:
         preamble = data[:4]
-        data_field_length = struct.unpack('!H', data[4:6])[0]
-        codec_id = data[6]
-        number_of_data = data[7]
-        
-        offset = 8
+        data_field_length = struct.unpack('!I', data[4:8])[0]
+        codec_id = data[8]
+        number_of_data = data[9]
+
+        offset = 10
         avl_data_list = []
 
         for _ in range(number_of_data):
@@ -34,7 +34,6 @@ def parse_codec8_extended(data):
 
                 io_elements = {'1B': {}, '2B': {}, '4B': {}, '8B': {}}
 
-                # Read IO elements
                 io_count_1B = data[offset]
                 offset += 1
                 for _ in range(io_count_1B):
@@ -85,7 +84,7 @@ def parse_codec8_extended(data):
                 print("Datos insuficientes para extraer un AVL Data Packet completo")
                 return None
 
-        crc = struct.unpack('!I', data[-4:])[0]
+        crc = struct.unpack('!H', data[-2:])[0]  # Asumiendo CRC-16 como 2 bytes
 
         return {
             "preamble": preamble,
@@ -117,7 +116,7 @@ def start_server(host='0.0.0.0', port=9525):
             imei = imei_data.decode('ascii')
             print(f"IMEI recibido: {imei}")
 
-            # Validar IMEI (aquí deberías agregar la lógica real para validar)
+            # Validar IMEI
             imei_valid = True  # Cambiar según la lógica de validación
             confirmation_message = b'\x01' if imei_valid else b'\x00'
             client_socket.sendall(confirmation_message)
@@ -128,22 +127,23 @@ def start_server(host='0.0.0.0', port=9525):
 
             while True:
                 data = client_socket.recv(1024)
-                if data:
-                    print(f"Datos recibidos: {data}")
-                    print(f"Datos recibidos (hex): {data.hex()}")
-
-                    codec8_data = parse_codec8_extended(data)
-                    if codec8_data:
-                        print(f"Datos Codec 8 extendido deserializados: {codec8_data}")
-
-                        # Confirmar recepción de datos
-                        num_data_received = len(codec8_data['avl_data_list'])
-                        confirmation_data = struct.pack('!I', num_data_received)
-                        client_socket.sendall(confirmation_data)
-
-                else:
+                if not data:
                     print("El dispositivo ha cerrado la conexión")
                     break
+
+                # Procesar datos AVL si están disponibles
+                print(f"Datos recibidos: {data}")
+                print(f"Datos recibidos (hex): {data.hex()}")
+
+                codec8_data = parse_codec8_extended(data)
+                if codec8_data:
+                    print(f"Datos Codec 8 extendido deserializados: {codec8_data}")
+
+                    # Confirmar recepción de datos
+                    num_data_received = len(codec8_data['avl_data_list'])
+                    confirmation_data = struct.pack('!I', num_data_received)
+                    client_socket.sendall(confirmation_data)
+
         finally:
             client_socket.close()
             print(f"Conexión cerrada con {client_address}")
