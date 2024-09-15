@@ -6,6 +6,7 @@ def hex_to_bytes(hex_str):
     """Convierte una cadena hexadecimal en datos binarios."""
     return bytes.fromhex(hex_str)
 
+
 def parse_codec8_extended(data):
     # Convierte los datos de hexadecimal a binario si es necesario
     if isinstance(data, str):
@@ -20,7 +21,7 @@ def parse_codec8_extended(data):
     try:
         preamble = data[:4]
         print(f"Preamble: {preamble.hex()}")
-        
+
         data_field_length = struct.unpack('!I', data[4:8])[0]  # Cambiado a 4 bytes
         print(f"Data Field Length: {data_field_length}")
 
@@ -36,7 +37,8 @@ def parse_codec8_extended(data):
         for i in range(number_of_data):
             print(f"\nProcesando AVL Data Packet {i+1}/{number_of_data}...")
 
-            if len(data) < offset + 24:  # Ajustar el tamaño del paquete AVL según el protocolo
+            # Asegurarse de que el tamaño de los datos es suficiente
+            if len(data) < offset + 24:  # Tamaño base para el paquete AVL
                 print(f"Datos insuficientes para extraer un AVL Data Packet completo, buffer size: {len(data)}, required: {offset + 24}")
                 return None
 
@@ -74,57 +76,40 @@ def parse_codec8_extended(data):
             event_id = data[offset]
             print(f"Event ID: {event_id}")
 
-            total_io_elements = data[offset+1]
+            total_io_elements = data[offset+20]
             print(f"Total IO Elements: {total_io_elements}")
 
             offset += 2
 
-            io_elements = {}
+            io_elements = {'1B': {}, '2B': {}, '4B': {}, '8B': {}}
 
             # Lectura de IO elements
-            io_elements['1B'] = {}
-            io_count_1B = data[offset]
-            print(f"1B IO Elements Count: {io_count_1B}")
-            offset += 1
-            for _ in range(io_count_1B):
-                io_id = data[offset]
-                io_value = data[offset+1]
-                print(f"1B IO Element - ID: {io_id}, Value: {io_value}")
-                io_elements['1B'][io_id] = io_value
-                offset += 2
-
-            io_elements['2B'] = {}
-            io_count_2B = data[offset]
-            print(f"2B IO Elements Count: {io_count_2B}")
-            offset += 1
-            for _ in range(io_count_2B):
-                io_id = data[offset]
-                io_value = struct.unpack('!H', data[offset+1:offset+3])[0]
-                print(f"2B IO Element - ID: {io_id}, Value: {io_value}")
-                io_elements['2B'][io_id] = io_value
-                offset += 3
-
-            io_elements['4B'] = {}
-            io_count_4B = data[offset]
-            print(f"4B IO Elements Count: {io_count_4B}")
-            offset += 1
-            for _ in range(io_count_4B):
-                io_id = data[offset]
-                io_value = struct.unpack('!I', data[offset+1:offset+5])[0]
-                print(f"4B IO Element - ID: {io_id}, Value: {io_value}")
-                io_elements['4B'][io_id] = io_value
-                offset += 5
-
-            io_elements['8B'] = {}
-            io_count_8B = data[offset]
-            print(f"8B IO Elements Count: {io_count_8B}")
-            offset += 1
-            for _ in range(io_count_8B):
-                io_id = data[offset]
-                io_value = struct.unpack('!Q', data[offset+1:offset+9])[0]
-                print(f"8B IO Element - ID: {io_id}, Value: {io_value}")
-                io_elements['8B'][io_id] = io_value
-                offset += 9
+            for io_type in io_elements.keys():
+                io_count = data[offset]
+                print(f"{io_type} IO Elements Count: {io_count}")
+                offset += 1
+                for _ in range(io_count):
+                    io_id = data[offset]
+                    if io_type == '1B':
+                        io_value = data[offset+1]
+                        print(f"{io_type} IO Element - ID: {io_id}, Value: {io_value}")
+                        io_elements[io_type][io_id] = io_value
+                        offset += 2
+                    elif io_type == '2B':
+                        io_value = struct.unpack('!H', data[offset+1:offset+3])[0]
+                        print(f"{io_type} IO Element - ID: {io_id}, Value: {io_value}")
+                        io_elements[io_type][io_id] = io_value
+                        offset += 3
+                    elif io_type == '4B':
+                        io_value = struct.unpack('!I', data[offset+1:offset+5])[0]
+                        print(f"{io_type} IO Element - ID: {io_id}, Value: {io_value}")
+                        io_elements[io_type][io_id] = io_value
+                        offset += 5
+                    elif io_type == '8B':
+                        io_value = struct.unpack('!Q', data[offset+1:offset+9])[0]
+                        print(f"{io_type} IO Element - ID: {io_id}, Value: {io_value}")
+                        io_elements[io_type][io_id] = io_value
+                        offset += 9
 
             avl_data_list.append({
                 "timestamp": timestamp,
