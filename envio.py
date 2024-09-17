@@ -20,9 +20,9 @@ def send_message(server_ip, server_port, message):
 
 if __name__ == "__main__":
     # Reemplaza 'server_ip' con la IP de la máquina que está ejecutando el servidor
-    server_ip = '38.43.134.172'  # Reemplaza con la IP adecuada
-    #server_ip = 'localhost'
-    server_port = 9525
+    #server_ip = '38.43.134.172'  # Reemplaza con la IP adecuada
+    server_ip = 'localhost'
+    server_port = 6061
     message = "Hola, este es un mensaje de prueba."
     datam = "863719063922554"
     send_message(server_ip, server_port, datam)

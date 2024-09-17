@@ -1,7 +1,9 @@
 import socket
 import struct
 import json
-
+import websockets
+import asyncio
+import paho.mqtt.client as mqtt
 
 def hex_to_bytes(hex_str):
     """Convierte una cadena hexadecimal en datos binarios."""
@@ -273,8 +275,44 @@ def parse_codec8_extended(data):
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
         return None
+    
+def on_connect(client, userdata, flags, rc):
+    print(f"Conectado con código de resultado {rc}")
+    print(f"Conectado con código de resultado {rc}")
+
+def send_to_mqtt(data):
+    broker = "localhost"
+    port = 1883
+    topic = "prueba"
+
+    def on_publish(client, userdata, mid):
+        print(f"Mensaje publicado con id {mid}")
+
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_publish = on_publish  # Añadir callback de publicación
+    client.connect(broker, port, 60)
+    client.loop_start()  # Empezar el loop para mantener la conexión
+
+    try:
+        result = client.publish(topic, json.dumps(data))
+        if result.rc != mqtt.MQTT_ERR_SUCCESS:
+            print(f"Error al publicar: {result.rc}")
+        else:
+            print(f"Datos enviados al topic MQTT '{topic}': {json.dumps(data, indent=4)}")
+    except Exception as e:
+        print(f"Error al enviar los datos al broker MQTT: {e}")
+    finally:
+        client.loop_stop()  # Detener el loop
+        client.disconnect()
 
 
+async def send_to_websocket(data):
+    uri = "ws://localhost:6061"  # URL del servidor WebSocket
+    async with websockets.connect(uri) as websocket:
+        await websocket.send(json.dumps(data))
+        print(f"Datos enviados al WebSocket: {json.dumps(data, indent=4)}")
+        
 def start_server(host='0.0.0.0', port=9525):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
@@ -338,6 +376,7 @@ def start_server(host='0.0.0.0', port=9525):
                             # Imprimir el JSON con los resultados promedios
                             print("Datos promedios:")
                             print(json.dumps(parsed_data['averages'], indent=4))
+                            send_to_mqtt(parsed_data['averages'])
 
                     except Exception as e:
                         print(f"Error al enviar el mensaje de confirmación: {e}")
