@@ -2,6 +2,11 @@ import struct
 import logging
 from datetime import datetime
 
+# Configuración básica del logger
+logging.basicConfig(filename='errors.log', level=logging.ERROR, 
+                    format='%(asctime)s - IMEI: %(imei)s - %(message)s', 
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
 def filter_data(data_list):
     """Filtra los datos para eliminar valores atípicos o no representativos."""
     filtered_list = []
@@ -13,7 +18,7 @@ def filter_data(data_list):
             filtered_list.append(data)
     return filtered_list
 
-def parse_codec8_extended(data):
+def parse_codec8_extended(data, imei):
     # Convierte los datos de hexadecimal a binario si es necesario
 
     # Verifica si la longitud de los datos es suficiente
@@ -61,7 +66,7 @@ def parse_codec8_extended(data):
                     if io_type == '1B':
                         io_value = data[offset+2]  # El valor es de 1 bit
                         io_elements[io_type][io_id] = io_value
-                        offset += 3
+                        offset += 4
                     elif io_type == '2B':
                         io_value = struct.unpack('!H', data[offset+2:offset+4])[0]
                         io_elements[io_type][io_id] = io_value
@@ -112,7 +117,7 @@ def parse_codec8_extended(data):
             count = len(filtered_avl_data_list)
 
             averages = {
-                "imei": "N/A",  # El IMEI debe ser incluido en la función que llama a `parse_codec8_extended`
+                "imei": imei,  # El IMEI debe ser incluido en la función que llama a `parse_codec8_extended`
                 "latitude": round(total_latitude / count, 7),  # Redondear a 7 decimales
                 "longitude": round(total_longitude / count, 7),  # Redondear a 7 decimales
                 "altitude": int(total_altitude / count),  # Convertir a entero
@@ -138,4 +143,5 @@ def parse_codec8_extended(data):
         }
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
+        logging.error(f"Error al deserializar los datos: {e}", extra={'imei': imei})
         return None

@@ -60,10 +60,10 @@ def start_server(host='0.0.0.0', port=9525):
                         # print(f"Datos Nativos acumulados en el buffer: {buffer}")
                         # print(f"Datos acumulados en el buffer: {buffer.hex()}")
                         # print(f"Tamaño final del buffer: {len(buffer)} bytes")
-                        parsed_data = parse_codec8_extended(buffer)
+                        parsed_data = parse_codec8_extended(buffer, imei)
                         if parsed_data:
                             # Incluir el IMEI en los resultados promedios
-                            parsed_data['averages']['imei'] = imei
+                            #parsed_data['averages']['imei'] = imei
                             # Imprimir el JSON con los resultados promedios
                             print("Datos promedios:")
                             print(json.dumps(parsed_data['averages'], indent=4))
