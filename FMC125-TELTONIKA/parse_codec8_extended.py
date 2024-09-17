@@ -66,7 +66,7 @@ def parse_codec8_extended(data, imei):
                     if io_type == '1B':
                         io_value = data[offset+2]  # El valor es de 1 bit
                         io_elements[io_type][io_id] = io_value
-                        offset += 4
+                        offset += 3
                     elif io_type == '2B':
                         io_value = struct.unpack('!H', data[offset+2:offset+4])[0]
                         io_elements[io_type][io_id] = io_value
