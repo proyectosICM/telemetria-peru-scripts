@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 def on_connect(client, userdata, flags, rc):
     print(f"Conectado con código de resultado {rc}")
 
-def send_to_mqtt(data, broker="localhost", port=1883, topic="prueba"):
+def send_to_mqtt(data, broker="192.168.0.204", port=1883, topic="prueba"):
     def on_publish(client, userdata, mid):
         print(f"Mensaje publicado con id {mid}")
 
