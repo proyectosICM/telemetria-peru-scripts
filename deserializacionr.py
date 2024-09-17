@@ -149,7 +149,7 @@ def on_connect(client, userdata, flags, rc):
     print(f"Conectado con código de resultado {rc}")
 
 def send_to_mqtt(data):
-    broker = "localhost"
+    broker = "192.168.0.204"
     port = 1883
     topic = "prueba"
 
