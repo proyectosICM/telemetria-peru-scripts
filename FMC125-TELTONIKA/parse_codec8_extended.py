@@ -144,4 +144,4 @@ def parse_codec8_extended(data, imei):
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
         logging.error(f"Error al deserializar los datos: {e}", extra={'imei': imei})
-        return Noneº
+        return None

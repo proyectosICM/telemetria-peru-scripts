@@ -55,7 +55,7 @@ def parse_codec8_extended(data):
                 return None
 
             event_id = struct.unpack('!H', data[offset:offset+2])[0]
-            offset += 2
+            offset += 2 
             total_io_elements = struct.unpack('!H', data[offset:offset+2])[0]
             offset += 2
             io_elements = {'1B': {}, '2B': {}, '4B': {}, '8B': {}, 'XB': {}}
