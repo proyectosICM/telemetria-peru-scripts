@@ -42,8 +42,8 @@ def handle_client(client_socket, client_address):
         data = client_socket.recv(1024)
 
         if data:
-            # print(f"Datos recibidos: {data}")
-            # print(f"Datos recibidos (hex): {data.hex()}")
+            print(f"Datos recibidos: {data}")
+            #print(f"Datos recibidos (hex): {data.hex()}")
 
             imei_length_hex = data[:2]
             imei_length = int(imei_length_hex.hex(), 16)
@@ -69,7 +69,7 @@ def handle_client(client_socket, client_address):
 
                 parsed_data = parse_codec8_extended(buffer, imei)
                 if parsed_data:
-                    # print(json.dumps(parsed_data['averages'], indent=4))
+                    print(json.dumps(parsed_data['averages'], indent=4))
                     send_to_mqtt(parsed_data['averages'])
 
             else:
