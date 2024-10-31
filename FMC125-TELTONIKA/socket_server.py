@@ -67,10 +67,12 @@ def handle_client(client_socket, client_address):
                         # print("El dispositivo ha cerrado la conexión")
                         break
                 
-                print(f"Buffer:  {buffer}")
+            
+                print(f"Hexadecimal: {buffer } -> buffer: {bin(int(buffer, 16))[2:].zfill(16)}")
+                
                 parsed_data = parse_codec8_extended(buffer, imei)
                 if parsed_data:
-                    print(json.dumps(parsed_data['averages'], indent=4))
+                    #print(json.dumps(parsed_data['averages'], indent=4))
                     send_to_mqtt(parsed_data['averages'])
 
             else:
