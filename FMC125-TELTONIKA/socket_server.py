@@ -4,37 +4,37 @@ from mqtt_manager import send_to_mqtt
 import json
 from threading import Event
 
-# Lineas a descomentar para debug
-# 24, 45, 46, 53, 56, 67, 72, 83, 84
+# Optional debugging lines: Uncomment lines 24, 45, 46, 53, 56, 67, 72, 83, and 84
+# to view additional output in the console and help trace execution.
 
 def start_server(stop_event, host='0.0.0.0', port=9525):
-    # Crear el socket del servidor
+    # Create the server socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
     server_socket.listen(1)
-    print(f"Servidor escuchando en {host}:{port}")
+    print(f"Server listening on {host}:{port}")
     
-    # Establecer un timeout para verificar la señal de detener
+    # Set a timeout to check the stop signal
     server_socket.settimeout(1)  
 
     while not stop_event.is_set():
         try:
             try:
                 client_socket, client_address = server_socket.accept()
-                #print(f"Conexión establecida con {client_address}")
+                # print(f"Connection established with {client_address}")
 
-                # Iniciar el procesamiento de datos del cliente
+                # Start processing client data
                 handle_client(client_socket, client_address)
 
             except socket.timeout:
-                # Continuar en caso de timeout, permitiendo que el bucle se ejecute mientras no se detenga el servidor
+                # Continue on timeout, allowing the loop to run as long as the server is not stopped
                 continue
         except Exception as e:
-            print(f"Error en el servidor: {e}")
+            print(f"Server error: {e}")
     
-    # Cerrar el socket del servidor cuando se detenga
+    # Close the server socket when stopped
     server_socket.close()
-    print("Servidor detenido.")
+    print("Server stopped.")
 
 def handle_client(client_socket, client_address):
     try:
@@ -42,17 +42,17 @@ def handle_client(client_socket, client_address):
         data = client_socket.recv(1024)
 
         if data:
-            print(f"Datos recibidos: {data}")
-            #print(f"Datos recibidos (hex): {data.hex()}")
+            print(f"Data received: {data}")
+            #print(f"Data received (hex): {data.hex()}")
             imei_length_hex = data[:2]
             imei_length = int(imei_length_hex.hex(), 16)
             imei_hex = data[2:2+imei_length]
             imei = imei_hex.decode('ascii')
 
-            # print(f"IMEI recibido: {imei}")
+            # print(f"IMEI received: {imei}")
 
             if len(imei) == 15 and imei.isdigit():
-                # print("IMEI válido")
+                # print("Valid IMEI")
                 confirmation_message = b'\x01'
                 client_socket.sendall(confirmation_message)
 
@@ -63,7 +63,7 @@ def handle_client(client_socket, client_address):
                         buffer += new_data
                         messages_received += 1
                     else:
-                        # print("El dispositivo ha cerrado la conexión")
+                        # print("The device has closed the connection")
                         break
                 
                 print(f"Buffer:  {buffer}")
@@ -75,12 +75,12 @@ def handle_client(client_socket, client_address):
                     send_to_mqtt(parsed_data['averages'])
 
             else:
-                print("IMEI inválido")
+                print("Invalid IMEI")
 
         else:
-            print("El dispositivo ha cerrado la conexión")
+            print("The device has closed the connection")
 
     finally:
         client_socket.close()
-        # print(f"Conexión cerrada con {client_address}")
+        # print(f"Connection closed with {client_address}")
         # print("*************************************")
