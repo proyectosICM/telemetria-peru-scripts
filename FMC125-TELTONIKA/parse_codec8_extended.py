@@ -104,6 +104,8 @@ def parse_codec8_extended(data, imei):
                 "total_io_elements": total_io_elements,
                 "io_elements": io_elements
             })
+            
+            print(f"Datos Extraidos AVL: {avl_data_list}")
 
         if len(data) < offset + 4:
             return None
@@ -135,7 +137,7 @@ def parse_codec8_extended(data, imei):
                 "altitude": int(total_altitude / count),  # Convertir a entero
                 "angle": int(total_angle / count),
                 "speed": int(total_speed / count),
-                "io_values_270": io_values_270 
+                "io_values_270": avg_io_value_270 
             }
         else:
             averages = {
