@@ -95,7 +95,7 @@ def parse_codec8_extended(data, imei):
                 "timestamp": timestamp,
                 "priority": priority,
                 "longitude": longitude / 1e7,  # Convertir a grados decimales
-                "latitude": latitude / 1e7,   # Convertir a grados decimales
+                "latitude": latitude / 1e7,   # Convertir a grados de
                 "altitude": altitude,
                 "angle": angle,
                 "satellites": satellites,

@@ -42,8 +42,8 @@ def handle_client(client_socket, client_address):
         data = client_socket.recv(1024)
 
         if data:
-            print(f"Data received: {data}")
-            #print(f"Data received (hex): {data.hex()}")
+            # print(f"Data received: {data}")
+            # print(f"Data received (hex): {data.hex()}")
             imei_length_hex = data[:2]
             imei_length = int(imei_length_hex.hex(), 16)
             imei_hex = data[2:2+imei_length]
@@ -57,7 +57,7 @@ def handle_client(client_socket, client_address):
                 client_socket.sendall(confirmation_message)
 
                 messages_received = 0
-                while messages_received < 2:
+                while messages_received < 3:
                     new_data = client_socket.recv(1024)
                     if new_data:
                         buffer += new_data
@@ -66,7 +66,7 @@ def handle_client(client_socket, client_address):
                         # print("The device has closed the connection")
                         break
                 
-                print(f"Buffer:  {buffer}")
+                # print(f"Buffer:  {buffer}")
                 hex_str = buffer.hex()
                 print(hex_str)    
                 parsed_data = parse_codec8_extended(buffer, imei)
