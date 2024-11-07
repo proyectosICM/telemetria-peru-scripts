@@ -73,6 +73,7 @@ def handle_client(client_socket, client_address):
                 if parsed_data:
                     #print(json.dumps(parsed_data['averages'], indent=4))
                     send_to_mqtt(parsed_data['averages'])
+                    buffer = b''
 
             else:
                 print("Invalid IMEI")
