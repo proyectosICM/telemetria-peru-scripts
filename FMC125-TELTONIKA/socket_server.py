@@ -57,7 +57,7 @@ def handle_client(client_socket, client_address):
                 client_socket.sendall(confirmation_message)
 
                 messages_received = 0
-                while messages_received < 3:
+                while messages_received < 2:
                     new_data = client_socket.recv(1024)
                     if new_data:
                         buffer += new_data
