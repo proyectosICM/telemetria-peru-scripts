@@ -18,7 +18,7 @@ def start_server(host='0.0.0.0', port=9526):
         print(f"Conexión establecida con {client_address}")
 
         # Establecer timeout de 30 segundos para la conexión con el cliente
-        client_socket.settimeout(90)
+        client_socket.settimeout(30)
 
         try:
             while True:
@@ -26,7 +26,12 @@ def start_server(host='0.0.0.0', port=9526):
                     # Recibir datos (tamaño del búfer = 1024 bytes)
                     data = client_socket.recv(1024)
                     if data:
-                        print(f"Datos recibidos: {data.decode('utf-8')}")
+                        try:
+                            # Intentar decodificar los datos como UTF-8
+                            decoded_data = data.decode('utf-8')
+                            print(f"Datos recibidos: {decoded_data}")
+                        except UnicodeDecodeError:
+                            print("Error: No se pudo decodificar el dato recibido. Dato no es UTF-8.")
                     else:
                         # No hay más datos, cerrar la conexión
                         break
