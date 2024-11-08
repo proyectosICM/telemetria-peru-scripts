@@ -77,15 +77,18 @@ def parse_codec8_extended(data, imei):
                         io_value = struct.unpack('!I', data[offset+2:offset+6])[0]
                         io_elements[io_type][io_id] = io_value
                         offset += 6
+                        print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     elif io_type == '8B':
                         io_value = struct.unpack('!Q', data[offset+2:offset+10])[0]
                         io_elements[io_type][io_id] = io_value
                         offset += 10
+                        print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     elif io_type == 'XB':
                         value_length = struct.unpack('!H', data[offset + 2:offset + 4])[0]
                         io_value = data[offset + 4:offset + 4 + value_length]
                         io_elements[io_type][io_id] = io_value.hex()
                         offset += 4 + value_length
+                        print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     
                     if io_id == 270 and io_value != 0:
                         io_values_270.append(io_value)
