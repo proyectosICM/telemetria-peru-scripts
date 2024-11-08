@@ -7,7 +7,7 @@ from threading import Event
 # Optional debugging lines: Uncomment lines 24, 45, 46, 53, 56, 67, 72, 83, and 84
 # to view additional output in the console and help trace execution.
 
-def start_server(stop_event, host='0.0.0.0', port=9526):
+def start_server(stop_event, host='0.0.0.0', port=9525):
     # Create the server socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))

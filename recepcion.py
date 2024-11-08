@@ -1,6 +1,6 @@
 import socket
 
-def start_server(host='0.0.0.0', port=9525):
+def start_server(host='0.0.0.0', port=9526):
     # Crear un socket TCP/IP
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
