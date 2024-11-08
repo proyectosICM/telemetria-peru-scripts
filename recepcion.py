@@ -20,14 +20,23 @@ def start_server(host='0.0.0.0', port=9526):
         client_socket.settimeout(30)
 
         try:
-            while True:
+            buffer = b''  # Inicializar el buffer vacío para almacenar los mensajes
+            messages_received = 0  # Contador de mensajes recibidos
+
+            while messages_received < 2:
                 try:
                     # Recibir datos (tamaño del búfer = 1024 bytes)
                     data = client_socket.recv(1024)
                     if data:
-                        # Imprimir los datos recibidos en formato bytes y en hexadecimal
-                        print(f"Datos recibidos: {data}")
-                        print(f"Datos recibidos (hex): {data.hex()}")
+                        buffer += data  # Agregar datos al buffer
+                        messages_received += 1  # Incrementar el contador de mensajes recibidos
+                        print(f"Mensaje {messages_received} recibido: {data}")
+                        print(f"Mensaje {messages_received} recibido (hex): {data.hex()}")
+
+                        # Verificar si ya se han recibido los dos mensajes completos
+                        if messages_received == 2:
+                            print(f"Buffer completo: {buffer}")
+                            print(f"Buffer completo (hex): {buffer.hex()}")
                     else:
                         # No hay más datos, cerrar la conexión
                         break
