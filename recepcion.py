@@ -26,12 +26,8 @@ def start_server(host='0.0.0.0', port=9526):
                     # Recibir datos (tamaño del búfer = 1024 bytes)
                     data = client_socket.recv(1024)
                     if data:
-                        try:
-                            # Intentar decodificar los datos como UTF-8
-                            decoded_data = data.decode('utf-8')
-                            print(f"Datos recibidos: {decoded_data}")
-                        except UnicodeDecodeError:
-                            print("Error: No se pudo decodificar el dato recibido. Dato no es UTF-8.")
+                        # Imprimir los datos recibidos
+                        print(f"Datos recibidos: {data}")
                     else:
                         # No hay más datos, cerrar la conexión
                         break
