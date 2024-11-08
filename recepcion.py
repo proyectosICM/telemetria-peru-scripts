@@ -1,4 +1,5 @@
 import socket
+import time
 
 def start_server(host='0.0.0.0', port=9526):
     # Crear un socket TCP/IP
@@ -16,15 +17,23 @@ def start_server(host='0.0.0.0', port=9526):
         client_socket, client_address = server_socket.accept()
         print(f"Conexión establecida con {client_address}")
 
+        # Establecer timeout de 30 segundos para la conexión con el cliente
+        client_socket.settimeout(90)
+
         try:
             while True:
-                # Recibir datos (tamaño del búfer = 1024 bytes)
-                data = client_socket.recv(1024)
-                if data:
-                    print(f"Datos recibidos: {data.decode('utf-8')}")
-                else:
-                    # No hay más datos, cerrar la conexión
+                try:
+                    # Recibir datos (tamaño del búfer = 1024 bytes)
+                    data = client_socket.recv(1024)
+                    if data:
+                        print(f"Datos recibidos: {data.decode('utf-8')}")
+                    else:
+                        # No hay más datos, cerrar la conexión
+                        break
+                except socket.timeout:
+                    print("Tiempo de espera agotado. Cerrando conexión por inactividad.")
                     break
+
         finally:
             # Cerrar la conexión
             client_socket.close()
