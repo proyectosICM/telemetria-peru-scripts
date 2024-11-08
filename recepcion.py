@@ -1,5 +1,4 @@
 import socket
-import time
 
 def start_server(host='0.0.0.0', port=9526):
     # Crear un socket TCP/IP
@@ -26,8 +25,9 @@ def start_server(host='0.0.0.0', port=9526):
                     # Recibir datos (tamaño del búfer = 1024 bytes)
                     data = client_socket.recv(1024)
                     if data:
-                        # Imprimir los datos recibidos
+                        # Imprimir los datos recibidos en formato bytes y en hexadecimal
                         print(f"Datos recibidos: {data}")
+                        print(f"Datos recibidos (hex): {data.hex()}")
                     else:
                         # No hay más datos, cerrar la conexión
                         break
