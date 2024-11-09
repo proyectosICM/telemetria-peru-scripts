@@ -15,7 +15,7 @@ def filter_data(data_list):
             data["longitude"] != 0 and
             data["altitude"] > 0 and
             data["angle"] > 0 and
-            data["speed"] > 0):
+            data["speed"]):
             filtered_list.append(data)
     return filtered_list
 
@@ -108,7 +108,7 @@ def parse_codec8_extended(data, imei):
                 "io_elements": io_elements
             })
             
-            print(f"Datos Extraidos AVL: {avl_data_list}")
+            #print(f"Datos Extraidos AVL: {avl_data_list}")
 
         if len(data) < offset + 4:
             return None
