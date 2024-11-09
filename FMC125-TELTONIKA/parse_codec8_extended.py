@@ -13,8 +13,7 @@ def filter_data(data_list):
     for data in data_list:
         if (data["latitude"] != 0 and
             data["longitude"] != 0 and
-            data["altitude"] > 0 and
-            data["angle"] > 0):
+            data["altitude"] > 0):
             filtered_list.append(data)
     return filtered_list
 
@@ -34,7 +33,7 @@ def parse_codec8_extended(data, imei):
         number_of_data = data[9]
         offset = 10
         avl_data_list = []
-        fuelInfo = []  # Cambiado nombre de io_values_270 a fuelInfo
+        fuelInfo = [] 
 
         for i in range(number_of_data):
             if len(data) < offset + 24:  # Tamaño base para el paquete AVL
@@ -76,18 +75,21 @@ def parse_codec8_extended(data, imei):
                         io_value = struct.unpack('!I', data[offset+2:offset+6])[0]
                         io_elements[io_type][io_id] = io_value
                         offset += 6
+                        #print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     elif io_type == '8B':
                         io_value = struct.unpack('!Q', data[offset+2:offset+10])[0]
                         io_elements[io_type][io_id] = io_value
                         offset += 10
+                        #print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     elif io_type == 'XB':
                         value_length = struct.unpack('!H', data[offset + 2:offset + 4])[0]
                         io_value = data[offset + 4:offset + 4 + value_length]
                         io_elements[io_type][io_id] = io_value.hex()
                         offset += 4 + value_length
+                        #print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     
                     if io_id == 270 and io_value != 0:
-                        fuelInfo.append(io_value)  # Cambiado de io_values_270 a fuelInfo
+                        fuelInfo.append(io_value)
 
             # Convertir latitud y longitud a formato decimal
             avl_data_list.append({
@@ -104,11 +106,13 @@ def parse_codec8_extended(data, imei):
                 "io_elements": io_elements
             })
             
+            #print(f"Datos Extraidos AVL: {avl_data_list}")
+
         if len(data) < offset + 4:
             return None
 
         crc = struct.unpack('!I', data[-4:])[0]  # CRC
-        print(f"crc: {crc}")
+        #print(f"crc: {crc}")
         # Filtrar los datos antes de calcular promedios
         filtered_avl_data_list = filter_data(avl_data_list)
 
@@ -118,12 +122,14 @@ def parse_codec8_extended(data, imei):
             total_longitude = sum(d["longitude"] for d in filtered_avl_data_list)
             total_altitude = sum(d["altitude"] for d in filtered_avl_data_list)
             total_angle = sum(d["angle"] for d in filtered_avl_data_list)
+            #total_speed = sum(d["speed"] for d in filtered_avl_data_list)
             count = len(filtered_avl_data_list)
             
             if fuelInfo:
-                avg_fuelInfo = round(sum(fuelInfo) / len(fuelInfo), 2)  # Redondear a 2 decimales
+                avg_io_value_270 = round(sum(fuelInfo) / len(fuelInfo), 2)  # Redondear a 2 decimales
             else:
-                avg_fuelInfo = 0 
+                avg_io_value_270 = 0 
+
 
             averages = {
                 "imei": imei,  # El IMEI debe ser incluido en la función que llama a `parse_codec8_extended`
@@ -131,7 +137,8 @@ def parse_codec8_extended(data, imei):
                 "longitude": round(total_longitude / count, 7),  # Redondear a 7 decimales
                 "altitude": int(total_altitude / count),  # Convertir a entero
                 "angle": int(total_angle / count),
-                "fuelInfo": avg_fuelInfo  # Cambiado de io_values_270 a fuelInfo
+                #"speed": int(total_speed / count),
+                "fuelInfo": avg_io_value_270 
             }
         else:
             averages = {
@@ -140,7 +147,8 @@ def parse_codec8_extended(data, imei):
                 "longitude": 0,
                 "altitude": 0,
                 "angle": 0,
-                "fuelInfo": 0  # Cambiado de io_values_270 a fuelInfo
+                #"speed": 0,
+                "fuelInfo": 0
             }
 
         return {
