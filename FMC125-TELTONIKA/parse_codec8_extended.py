@@ -139,7 +139,7 @@ def parse_codec8_extended(data, imei):
                 "altitude": int(total_altitude / count),  # Convertir a entero
                 "angle": int(total_angle / count),
                 #"speed": int(total_speed / count),
-                "io_values_270": avg_io_value_270 
+                "fuelInfo": avg_io_value_270 
             }
         else:
             averages = {
@@ -149,7 +149,7 @@ def parse_codec8_extended(data, imei):
                 "altitude": 0,
                 "angle": 0,
                 #"speed": 0,
-                "io_values_270": 0
+                "fuelInfo": 0
             }
 
         return {
