@@ -14,8 +14,7 @@ def filter_data(data_list):
         if (data["latitude"] != 0 and
             data["longitude"] != 0 and
             data["altitude"] > 0 and
-            data["angle"] > 0 and
-            data["speed"] !=0):
+            data["angle"] > 0):
             filtered_list.append(data)
     return filtered_list
 
@@ -124,7 +123,7 @@ def parse_codec8_extended(data, imei):
             total_longitude = sum(d["longitude"] for d in filtered_avl_data_list)
             total_altitude = sum(d["altitude"] for d in filtered_avl_data_list)
             total_angle = sum(d["angle"] for d in filtered_avl_data_list)
-            total_speed = sum(d["speed"] for d in filtered_avl_data_list)
+            #total_speed = sum(d["speed"] for d in filtered_avl_data_list)
             count = len(filtered_avl_data_list)
             
             if io_values_270:
@@ -139,7 +138,7 @@ def parse_codec8_extended(data, imei):
                 "longitude": round(total_longitude / count, 7),  # Redondear a 7 decimales
                 "altitude": int(total_altitude / count),  # Convertir a entero
                 "angle": int(total_angle / count),
-                "speed": int(total_speed / count),
+                #"speed": int(total_speed / count),
                 "io_values_270": avg_io_value_270 
             }
         else:
@@ -149,7 +148,7 @@ def parse_codec8_extended(data, imei):
                 "longitude": 0,
                 "altitude": 0,
                 "angle": 0,
-                "speed": 0,
+                #"speed": 0,
                 "io_values_270": 0
             }
 
