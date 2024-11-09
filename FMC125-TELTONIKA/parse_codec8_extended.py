@@ -108,7 +108,7 @@ def parse_codec8_extended(data, imei):
                 "io_elements": io_elements
             })
             
-            # print(f"Datos Extraidos AVL: {avl_data_list}")
+            print(f"Datos Extraidos AVL: {avl_data_list}")
 
         if len(data) < offset + 4:
             return None
