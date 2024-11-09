@@ -114,7 +114,7 @@ def parse_codec8_extended(data, imei):
             return None
 
         crc = struct.unpack('!I', data[-4:])[0]  # CRC
-
+        print(f"crc: {crc}")
         # Filtrar los datos antes de calcular promedios
         filtered_avl_data_list = filter_data(avl_data_list)
 
