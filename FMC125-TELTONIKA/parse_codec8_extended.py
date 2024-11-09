@@ -34,7 +34,7 @@ def parse_codec8_extended(data, imei):
         number_of_data = data[9]
         offset = 10
         avl_data_list = []
-        io_values_270 = []
+        fuelInfo = [] 
 
         for i in range(number_of_data):
             if len(data) < offset + 24:  # Tamaño base para el paquete AVL
@@ -90,7 +90,7 @@ def parse_codec8_extended(data, imei):
                         #print(f"IO Type: {io_type}, IO ID: {io_id}, IO Value: {io_value}")
                     
                     if io_id == 270 and io_value != 0:
-                        io_values_270.append(io_value)
+                        fuelInfo.append(io_value)
 
             # Convertir latitud y longitud a formato decimal
             avl_data_list.append({
@@ -126,8 +126,8 @@ def parse_codec8_extended(data, imei):
             #total_speed = sum(d["speed"] for d in filtered_avl_data_list)
             count = len(filtered_avl_data_list)
             
-            if io_values_270:
-                avg_io_value_270 = round(sum(io_values_270) / len(io_values_270), 2)  # Redondear a 2 decimales
+            if fuelInfo:
+                avg_io_value_270 = round(sum(fuelInfo) / len(fuelInfo), 2)  # Redondear a 2 decimales
             else:
                 avg_io_value_270 = 0 
 
