@@ -17,7 +17,7 @@ def send_to_mqtt(data, broker="192.168.0.204", port=1883, topic="prueba"):
     client.loop_start()  # Empezar el loop para mantener la conexión
 
     try:
-        result = client.publish(topic, json.dumps(data))
+        result = client.publish(topic, json.dumps(data), qos=1, retain=True)
         if result.rc != mqtt.MQTT_ERR_SUCCESS:
             print(f"Error publishing: {result.rc}")
         else:
