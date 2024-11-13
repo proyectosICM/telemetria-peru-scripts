@@ -1,5 +1,6 @@
 import json
 import paho.mqtt.client as mqtt
+import time
 
 def on_connect(client, userdata, flags, rc):
     pass  
@@ -10,6 +11,7 @@ def send_to_mqtt(data, broker="192.168.0.204", port=1883, topic="prueba"):
         pass  
         #print(f"Posted message with id {mid}")
 
+    data["timestamp"] = int(time.time()) 
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_publish = on_publish
