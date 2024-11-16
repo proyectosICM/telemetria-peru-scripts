@@ -134,7 +134,7 @@ def parse_codec8_extended(data, imei):
             else:
                 avg_io_value_270 = 0 
             
-            if alarmInfo != 0:
+            if alarmInfo:
                 avg_io_value_1 = round(sum(alarmInfo) / len(alarmInfo))  # Redondear a 2 decimales
             else:
                 avg_io_value_1 = 0 
