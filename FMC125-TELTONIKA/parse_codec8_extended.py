@@ -128,7 +128,7 @@ def parse_codec8_extended(data, imei):
             total_angle = sum(d["angle"] for d in filtered_avl_data_list)
             #total_speed = sum(d["speed"] for d in filtered_avl_data_list)
             count = len(filtered_avl_data_list)
-            
+            print (alarmInfo)
             if fuelInfo:
                 avg_io_value_270 = round(sum(fuelInfo) / len(fuelInfo), 2)  # Redondear a 2 decimales
             else:
