@@ -1,18 +1,11 @@
 import struct
 import logging
-import tempfile
 from datetime import datetime
 
 # Configuración básica del logger
-temp_log_file = tempfile.NamedTemporaryFile(delete=False, suffix=".log")
-logging.basicConfig(
-    filename=temp_log_file.name,
-    level=logging.ERROR,
-    format='%(asctime)s - IMEI: %(imei)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-print(f"Archivo de log temporal creado en: {temp_log_file.name}")
+#logging.basicConfig(filename='errors.log', level=logging.ERROR, 
+#                    format='%(asctime)s - IMEI: %(imei)s - %(message)s', 
+#                    datefmt='%Y-%m-%d %H:%M:%S')
 
 def filter_data(data_list):
     """Filtra los datos para eliminar valores atípicos o no representativos."""
@@ -169,5 +162,5 @@ def parse_codec8_extended(data, imei):
         }
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
-        logging.error(f"Error al deserializar los datos: {e}", extra={'imei': imei})
+        #logging.error(f"Error al deserializar los datos: {e}", extra={'imei': imei})
         return None
