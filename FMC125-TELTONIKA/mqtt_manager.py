@@ -16,7 +16,7 @@ def send_to_mqtt(data, broker="192.168.0.204", port=1883, topic="prueba"):
     client.on_connect = on_connect
     client.on_publish = on_publish
     client.connect(broker, port, 60)
-    client.loop_start()  # Empezar el loop para mantener la conexión
+    client.loop_start() 
 
     try:
         result = client.publish(topic, json.dumps(data), qos=1, retain=True)

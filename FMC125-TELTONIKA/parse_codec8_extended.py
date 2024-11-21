@@ -35,6 +35,7 @@ def parse_codec8_extended(data, imei):
         avl_data_list = []
         fuelInfo = [] 
         alarmInfo = []
+        ignitionInfo = []
 
         for i in range(number_of_data):
             if len(data) < offset + 24:  # Tamaño base para el paquete AVL
@@ -94,6 +95,9 @@ def parse_codec8_extended(data, imei):
                     
                     if io_id == 1 and io_value != 0:
                         alarmInfo.append(io_value)
+                        
+                    if io_id == 239 and io_value != 0:
+                        ignitionInfo.append(io_value)
 
             # Convertir latitud y longitud a formato decimal
             avl_data_list.append({
@@ -138,6 +142,11 @@ def parse_codec8_extended(data, imei):
                 avg_io_value_1 = round(sum(alarmInfo) / len(alarmInfo))  # Redondear a 2 decimales
             else:
                 avg_io_value_1 = 0 
+                
+            if ignitionInfo:
+                avg_io_value_239 = round(sum(ignitionInfo) / len(ignitionInfo))  # Redondear a 2 decimales
+            else:
+                avg_io_value_239 = 0
 
 
             averages = {
@@ -148,7 +157,8 @@ def parse_codec8_extended(data, imei):
                 "angle": int(total_angle / count),
                 #"speed": int(total_speed / count),
                 "fuelInfo": avg_io_value_270,
-                "alarmInfo": avg_io_value_1
+                "alarmInfo": avg_io_value_1,
+                "ignitionInfo": avg_io_value_239
             }
         else:
             averages = {
@@ -159,7 +169,8 @@ def parse_codec8_extended(data, imei):
                 "angle": 0,
                 #"speed": 0,
                 "fuelInfo": 0,
-                "alarmInfo": 0
+                "alarmInfo": 0,
+                "ignitionInfo": 0
             }
 
         return {
