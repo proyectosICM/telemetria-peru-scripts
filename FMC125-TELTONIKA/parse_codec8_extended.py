@@ -9,12 +9,49 @@ from datetime import datetime
 
 def filter_data(data_list):
     """Filtra los datos para eliminar valores atípicos o no representativos."""
-    filtered_list = []
-    for data in data_list:
-        if (data["latitude"] != 0 and
-            data["longitude"] != 0 and
-            data["altitude"] > 0):
-            filtered_list.append(data)
+    # Excluir datos con coordenadas inválidas
+    valid_data = [
+        data for data in data_list
+        if data["latitude"] != 0 and data["longitude"] != 0 and data["altitude"] > 0
+    ]
+
+    if not valid_data:
+        return []
+
+    # Extraer los valores de speed
+    speeds = [data["speed"] for data in valid_data]
+
+    # Si todos los valores de speed son 0, mantenerlos
+    if all(speed == 0 for speed in speeds):
+        return valid_data
+
+    # Identificar la mayoría de valores similares (tolerancia: +-5)
+    def is_similar(val1, val2, tolerance=5):
+        return abs(val1 - val2) <= tolerance
+
+    # Determinar el valor más frecuente (dentro del rango de tolerancia)
+    similar_groups = {}
+    for speed in speeds:
+        if speed == 0:  # Ignorar temporalmente los valores 0
+            continue
+        matched = False
+        for key in similar_groups:
+            if is_similar(speed, key):
+                similar_groups[key].append(speed)
+                matched = True
+                break
+        if not matched:
+            similar_groups[speed] = [speed]
+
+    # Encontrar el grupo mayoritario
+    majority_speed_group = max(similar_groups.values(), key=len, default=[])
+
+    # Si la mayoría es consistente, filtrar los datos
+    filtered_list = [
+        data for data in valid_data
+        if data["speed"] == 0 or data["speed"] in majority_speed_group
+    ]
+
     return filtered_list
 
 def parse_codec8_extended(data, imei):
