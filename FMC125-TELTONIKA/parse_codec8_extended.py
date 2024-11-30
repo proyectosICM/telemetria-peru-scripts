@@ -167,7 +167,7 @@ def parse_codec8_extended(data, imei):
             total_longitude = sum(d["longitude"] for d in filtered_avl_data_list)
             total_altitude = sum(d["altitude"] for d in filtered_avl_data_list)
             total_angle = sum(d["angle"] for d in filtered_avl_data_list)
-            #total_speed = sum(d["speed"] for d in filtered_avl_data_list)
+            total_speed = sum(d["speed"] for d in filtered_avl_data_list)
             count = len(filtered_avl_data_list)
 
             if fuelInfo:
@@ -192,7 +192,7 @@ def parse_codec8_extended(data, imei):
                 "longitude": round(total_longitude / count, 7),  # Redondear a 7 decimales
                 "altitude": int(total_altitude / count),  # Convertir a entero
                 "angle": int(total_angle / count),
-                #"speed": int(total_speed / count),
+                "speed": int(total_speed / count),
                 "fuelInfo": avg_io_value_270,
                 "alarmInfo": avg_io_value_1,
                 "ignitionInfo": avg_io_value_239
@@ -204,7 +204,7 @@ def parse_codec8_extended(data, imei):
                 "longitude": 0,
                 "altitude": 0,
                 "angle": 0,
-                #"speed": 0,
+                "speed": 0,
                 "fuelInfo": 0,
                 "alarmInfo": 0,
                 "ignitionInfo": 0
