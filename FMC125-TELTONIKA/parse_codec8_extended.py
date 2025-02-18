@@ -201,7 +201,7 @@ def parse_codec8_extended(data, imei):
                 avg_io_value_463 = 0
                 
             if v464:
-                avg_io_value_464 = round(sum(v463) / len(v463))
+                avg_io_value_464 = round(sum(v464) / len(v464))
             else:
                 avg_io_value_464 = 0
 
