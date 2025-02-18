@@ -73,6 +73,8 @@ def parse_codec8_extended(data, imei):
         fuelInfo = [] 
         alarmInfo = []
         ignitionInfo = []
+        v463 = []
+        v464 = []
 
         for i in range(number_of_data):
             if len(data) < offset + 24:  # Tamaño base para el paquete AVL
@@ -135,6 +137,14 @@ def parse_codec8_extended(data, imei):
                         
                     if io_id == 239 and io_value != 0:
                         ignitionInfo.append(io_value)
+                        
+                    if io_id == 463 and io_value != 0:
+                        v463.append(io_value)
+                        
+                    if io_id == 464 and io_value != 0:
+                        v464.append(io_value)
+                        
+                    
 
             # Convertir latitud y longitud a formato decimal
             avl_data_list.append({
@@ -184,6 +194,16 @@ def parse_codec8_extended(data, imei):
                 avg_io_value_239 = round(sum(ignitionInfo) / len(ignitionInfo))  # Redondear a 2 decimales
             else:
                 avg_io_value_239 = 0
+                
+            if v463:
+                avg_io_value_463 = round(sum(v463) / len(v463))
+            else:
+                avg_io_value_463 = 0
+                
+            if v464:
+                avg_io_value_464 = round(sum(v463) / len(v463))
+            else:
+                avg_io_value_464 = 0
 
 
             averages = {
@@ -195,7 +215,9 @@ def parse_codec8_extended(data, imei):
                 "speed": int(total_speed / count),
                 "fuelInfo": avg_io_value_270,
                 "alarmInfo": avg_io_value_1,
-                "ignitionInfo": avg_io_value_239
+                "ignitionInfo": avg_io_value_239,
+                "v463": avg_io_value_463,
+                "v464": avg_io_value_464
             }
         else:
             averages = {
@@ -207,7 +229,9 @@ def parse_codec8_extended(data, imei):
                 "speed": 0,
                 "fuelInfo": 0,
                 "alarmInfo": 0,
-                "ignitionInfo": 0
+                "ignitionInfo": 0,
+                "v463": avg_io_value_463,
+                "v464": avg_io_value_464
             }
 
         return {
