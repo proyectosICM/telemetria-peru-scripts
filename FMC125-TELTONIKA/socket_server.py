@@ -76,7 +76,7 @@ def handle_client(client_socket, client_address):
                         break
                 
                 # print(f"Buffer:  {buffer}")
-                #hex_str = buffer.hex()
+                hex_str = buffer.hex()
                 print(hex_str)    
                 parsed_data = parse_codec8_extended(buffer, imei)
                 if parsed_data:
