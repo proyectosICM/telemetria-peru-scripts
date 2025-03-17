@@ -52,7 +52,7 @@ def handle_client(client_socket, client_address):
 
         if data:
             # print(f"Data received: {data}")
-            # print(f"Data received (hex): {data.hex()}")
+            print(f"Data received (hex): {data.hex()}")
             imei_length_hex = data[:2]
             imei_length = int(imei_length_hex.hex(), 16)
             imei_hex = data[2:2+imei_length]
