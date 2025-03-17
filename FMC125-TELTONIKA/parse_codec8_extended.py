@@ -174,52 +174,20 @@ def parse_codec8_extended(data, imei):
         filtered_avl_data_list = filter_data(avl_data_list)
 
         # Calcular promedios
-        if filtered_avl_data_list:
-            total_latitude = sum(d["latitude"] for d in filtered_avl_data_list)
-            total_longitude = sum(d["longitude"] for d in filtered_avl_data_list)
-            total_altitude = sum(d["altitude"] for d in filtered_avl_data_list)
-            total_angle = sum(d["angle"] for d in filtered_avl_data_list)
-            total_speed = sum(d["speed"] for d in filtered_avl_data_list)
-            count = len(filtered_avl_data_list)
+        if latest_avl:
 
-            if fuelInfo:
-                avg_io_value_270 = round(sum(fuelInfo) / len(fuelInfo), 2)  # Redondear a 2 decimales
-            else:
-                avg_io_value_270 = 0 
-            
-            if alarmInfo:
-                avg_io_value_1 = round(sum(alarmInfo) / len(alarmInfo))  # Redondear a 2 decimales
-            else:
-                avg_io_value_1 = 0 
-                
-            if ignitionInfo:
-                avg_io_value_239 = round(sum(ignitionInfo) / len(ignitionInfo))  # Redondear a 2 decimales
-            else:
-                avg_io_value_239 = 0
-                
-            if v463:
-                avg_io_value_463 = round(sum(v463) / len(v463))
-            else:
-                avg_io_value_463 = 0
-                
-            if v464:
-                avg_io_value_464 = round(sum(v464) / len(v464))
-            else:
-                avg_io_value_464 = 0
-
-
-            averages = {
-                "imei": imei,  # El IMEI debe ser incluido en la función que llama a `parse_codec8_extended`
-                "latitude": round(total_latitude / count, 7),  # Redondear a 7 decimales
-                "longitude": round(total_longitude / count, 7),  # Redondear a 7 decimales
-                "altitude": int(total_altitude / count),  # Convertir a entero
-                "angle": int(total_angle / count),
-                "speed": int(total_speed / count),
-                "fuelInfo": avg_io_value_270,
-                "alarmInfo": avg_io_value_1,
-                "ignitionInfo": avg_io_value_239,
-                "v463": avg_io_value_463,
-                "v464": avg_io_value_464
+            latest_data = {
+                "imei": imei,
+                "latitude": latest_avl["latitude"],
+                "longitude": latest_avl["longitude"],
+                "altitude": latest_avl["altitude"],
+                "angle": latest_avl["angle"],
+                "speed": latest_avl["speed"],
+                "fuelInfo": latest_avl["io_elements"].get(270, 0),
+                "alarmInfo": latest_avl["io_elements"].get(1, 0),
+                "ignitionInfo": latest_avl["io_elements"].get(239, 0),
+                "v463": latest_avl["io_elements"].get(463, 0),
+                "v464": latest_avl["io_elements"].get(464, 0)
             }
         else:
             averages = {
@@ -232,8 +200,8 @@ def parse_codec8_extended(data, imei):
                 "fuelInfo": 0,
                 "alarmInfo": 0,
                 "ignitionInfo": 0,
-                "v463": avg_io_value_463,
-                "v464": avg_io_value_464
+                "v463": 0,
+                "v464": 0
             }
 
         return {
@@ -243,7 +211,7 @@ def parse_codec8_extended(data, imei):
             "number_of_data": number_of_data,
             "avl_data_list": avl_data_list,
             "crc": crc,
-            "data": data
+            "data": latest_data
         }
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
