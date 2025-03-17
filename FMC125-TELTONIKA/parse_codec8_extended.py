@@ -12,11 +12,6 @@ def parse_codec8_extended(data, imei):
         number_of_data = data[9]
         offset = 10
         avl_data_list = []
-        fuelInfo = [] 
-        alarmInfo = []
-        ignitionInfo = []
-        v463 = []
-        v464 = []
 
         for i in range(number_of_data):
             if len(data) < offset + 24:
@@ -32,32 +27,6 @@ def parse_codec8_extended(data, imei):
             speed = struct.unpack('!H', data[offset+22:offset+24])[0]
             offset += 24
 
-            if len(data) < offset + 2:
-                return None
-
-            event_id = struct.unpack('!H', data[offset:offset+2])[0]
-            offset += 2
-            total_io_elements = struct.unpack('!H', data[offset:offset+2])[0]
-            offset += 2
-            io_elements = {}
-
-            for _ in range(total_io_elements):
-                io_id = struct.unpack('!H', data[offset:offset+2])[0]
-                io_value = struct.unpack('!I', data[offset+2:offset+6])[0]
-                io_elements[io_id] = io_value
-                offset += 6
-
-                if io_id == 270 and io_value != 0:
-                    fuelInfo.append(io_value)
-                if io_id == 1 and io_value != 0:
-                    alarmInfo.append(io_value)
-                if io_id == 239 and io_value != 0:
-                    ignitionInfo.append(io_value)
-                if io_id == 463 and io_value != 0:
-                    v463.append(io_value)
-                if io_id == 464 and io_value != 0:
-                    v464.append(io_value)
-
             avl_data_list.append({
                 "timestamp": timestamp,
                 "priority": priority,
@@ -66,9 +35,7 @@ def parse_codec8_extended(data, imei):
                 "altitude": altitude,
                 "angle": angle,
                 "satellites": satellites,
-                "speed": speed,
-                "event_id": event_id,
-                "io_elements": io_elements
+                "speed": speed
             })
 
         if len(data) < offset + 4:
@@ -76,17 +43,20 @@ def parse_codec8_extended(data, imei):
 
         crc = struct.unpack('!I', data[-4:])[0]
 
-        # Encontrar el dato más reciente por timestamp
-        latest_data = max(avl_data_list, key=lambda x: x["timestamp"], default=None)
-        
-        if latest_data:
-            latest_data["imei"] = imei
-            latest_data["fuelInfo"] = fuelInfo[-1] if fuelInfo else 0
-            latest_data["alarmInfo"] = alarmInfo[-1] if alarmInfo else 0
-            latest_data["ignitionInfo"] = ignitionInfo[-1] if ignitionInfo else 0
-            latest_data["v463"] = v463[-1] if v463 else 0
-            latest_data["v464"] = v464[-1] if v464 else 0
-        
+        # Seleccionar el dato más reciente por timestamp
+        if avl_data_list:
+            latest_data = max(avl_data_list, key=lambda x: x["timestamp"])
+        else:
+            latest_data = {
+                "latitude": 0,
+                "longitude": 0,
+                "altitude": 0,
+                "angle": 0,
+                "speed": 0
+            }
+
+        latest_data["imei"] = imei
+
         return {
             "preamble": preamble,
             "data_field_length": data_field_length,
@@ -96,7 +66,6 @@ def parse_codec8_extended(data, imei):
             "crc": crc,
             "latest_data": latest_data
         }
-    
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
         return None
