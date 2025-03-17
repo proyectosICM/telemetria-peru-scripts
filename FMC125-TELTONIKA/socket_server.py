@@ -81,7 +81,7 @@ def handle_client(client_socket, client_address):
                 parsed_data = parse_codec8_extended(buffer, imei)
                 if parsed_data:
                     # print(json.dumps(parsed_data['averages'], indent=4))
-                    send_to_mqtt(parsed_data['latest_data'])
+                    send_to_mqtt(parsed_data['data'])
                     buffer = b''
                     data = b''
             else:
