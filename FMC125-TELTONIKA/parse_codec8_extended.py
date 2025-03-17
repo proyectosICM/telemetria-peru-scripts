@@ -1,4 +1,6 @@
 import struct
+import logging
+from datetime import datetime
 
 def parse_codec8_extended(data, imei):
     if len(data) < 12:
@@ -17,7 +19,7 @@ def parse_codec8_extended(data, imei):
             if len(data) < offset + 24:
                 return None
 
-            timestamp = struct.unpack('!Q', data[offset:offset+8])[0]
+            timestamp = struct.unpack('!Q', data[offset:offset+8])[0]  
             priority = data[offset+8]
             longitude = struct.unpack('!i', data[offset+9:offset+13])[0] / 1e7
             latitude = struct.unpack('!i', data[offset+13:offset+17])[0] / 1e7
@@ -27,6 +29,21 @@ def parse_codec8_extended(data, imei):
             speed = struct.unpack('!H', data[offset+22:offset+24])[0]
             offset += 24
 
+            if len(data) < offset + 2:
+                return None
+
+            event_id = struct.unpack('!H', data[offset:offset+2])[0]
+            offset += 2
+            total_io_elements = struct.unpack('!H', data[offset:offset+2])[0]
+            offset += 2
+            io_elements = {}
+
+            for _ in range(total_io_elements):
+                io_id = struct.unpack('!H', data[offset:offset+2])[0]
+                io_value = struct.unpack('!I', data[offset+2:offset+6])[0]  # Ajusta según el tamaño real
+                io_elements[io_id] = io_value
+                offset += 6
+
             avl_data_list.append({
                 "timestamp": timestamp,
                 "priority": priority,
@@ -35,27 +52,31 @@ def parse_codec8_extended(data, imei):
                 "altitude": altitude,
                 "angle": angle,
                 "satellites": satellites,
-                "speed": speed
+                "speed": speed,
+                "event_id": event_id,
+                "total_io_elements": total_io_elements,
+                "io_elements": io_elements
             })
 
-        if len(data) < offset + 4:
+        if not avl_data_list:
             return None
 
-        crc = struct.unpack('!I', data[-4:])[0]
+        # Seleccionar el AVL más reciente
+        latest_avl = max(avl_data_list, key=lambda x: x["timestamp"])
 
-        # Seleccionar el dato más reciente por timestamp
-        if avl_data_list:
-            latest_data = max(avl_data_list, key=lambda x: x["timestamp"])
-        else:
-            latest_data = {
-                "latitude": 0,
-                "longitude": 0,
-                "altitude": 0,
-                "angle": 0,
-                "speed": 0
-            }
-
-        latest_data["imei"] = imei
+        latest_data = {
+            "imei": imei,
+            "latitude": latest_avl["latitude"],
+            "longitude": latest_avl["longitude"],
+            "altitude": latest_avl["altitude"],
+            "angle": latest_avl["angle"],
+            "speed": latest_avl["speed"],
+            "fuelInfo": latest_avl["io_elements"].get(270, 0),
+            "alarmInfo": latest_avl["io_elements"].get(1, 0),
+            "ignitionInfo": latest_avl["io_elements"].get(239, 0),
+            "v463": latest_avl["io_elements"].get(463, 0),
+            "v464": latest_avl["io_elements"].get(464, 0)
+        }
 
         return {
             "preamble": preamble,
@@ -63,9 +84,10 @@ def parse_codec8_extended(data, imei):
             "codec_id": codec_id,
             "number_of_data": number_of_data,
             "avl_data_list": avl_data_list,
-            "crc": crc,
-            "latest_data": latest_data
+            "crc": struct.unpack('!I', data[-4:])[0],
+            "data": latest_data
         }
+
     except struct.error as e:
         print(f"Error al deserializar los datos: {e}")
         return None
