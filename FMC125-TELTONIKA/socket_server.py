@@ -58,7 +58,7 @@ def handle_client(client_socket, client_address):
             imei_hex = data[2:2+imei_length]
             imei = imei_hex.decode('ascii')
 
-            # print(f"IMEI received: {imei}")
+            print(f"IMEI received: {imei}")
 
             if len(imei) == 15 and imei.isdigit():
                 # print("Valid IMEI")
