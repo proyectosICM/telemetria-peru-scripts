@@ -58,7 +58,7 @@ def handle_client(client_socket, client_address):
             imei_hex = data[2:2+imei_length]
             imei = imei_hex.decode('ascii')
 
-            print(f"IMEI received: {imei}")
+            # print(f"IMEI received: {imei}")
 
             if len(imei) == 15 and imei.isdigit():
                 # print("Valid IMEI")
@@ -76,8 +76,8 @@ def handle_client(client_socket, client_address):
                         break
                 
                 # print(f"Buffer:  {buffer}")
-                hex_str = buffer.hex()
-                print(hex_str)    
+                # hex_str = buffer.hex()
+                # print(hex_str)    
                 parsed_data = parse_codec8_extended(buffer, imei)
                 if parsed_data:
                     # print(json.dumps(parsed_data['averages'], indent=4))
