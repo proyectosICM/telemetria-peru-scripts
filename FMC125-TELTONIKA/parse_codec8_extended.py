@@ -176,6 +176,13 @@ def parse_codec8_extended(data, imei):
         # Calcular promedios
         if latest_avl:
 
+            def get_io_value(io_elements, io_id):
+                """Busca el valor de un IO en todas las categorías disponibles."""
+                for key in io_elements:
+                    if io_id in io_elements[key]:
+                        return io_elements[key][io_id]
+                return 0  # Valor por defecto si no se encuentra
+
             latest_data = {
                 "imei": imei,
                 "latitude": latest_avl["latitude"],
@@ -183,11 +190,11 @@ def parse_codec8_extended(data, imei):
                 "altitude": latest_avl["altitude"],
                 "angle": latest_avl["angle"],
                 "speed": latest_avl["speed"],
-                "fuelInfo": latest_avl["io_elements"].get(270, 0),
-                "alarmInfo": latest_avl["io_elements"].get(1, 0),
-                "ignitionInfo": latest_avl["io_elements"].get(239, 0),
-                "v463": latest_avl["io_elements"].get(463, 0),
-                "v464": latest_avl["io_elements"].get(464, 0)
+                "fuelInfo": get_io_value(latest_avl["io_elements"], 270),
+                "alarmInfo": get_io_value(latest_avl["io_elements"], 1),
+                "ignitionInfo": get_io_value(latest_avl["io_elements"], 239),
+                "v463": get_io_value(latest_avl["io_elements"], 463),
+                "v464": get_io_value(latest_avl["io_elements"], 464)
             }
         else:
             averages = {
