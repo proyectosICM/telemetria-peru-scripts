@@ -169,7 +169,8 @@ def parse_codec8_extended(data, imei):
         crc = struct.unpack('!I', data[-4:])[0]  # CRC
         #print(f"crc: {crc}")
         # Filtrar los datos antes de calcular promedios
-        print(f"Data AVL: {avl_data_list}")
+        latest_avl = max(avl_data_list, key=lambda x: x["timestamp"])
+        print(f"Data AVL: {latest_avl}")
         filtered_avl_data_list = filter_data(avl_data_list)
 
         # Calcular promedios
