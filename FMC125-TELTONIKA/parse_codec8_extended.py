@@ -71,8 +71,12 @@ def parse_codec8_extended(data, imei):
         offset = 10
         avl_data_list = []
         fuelInfo = [] 
-        alarmInfo = []
-        ignitionInfo = []
+        alarmInfo = [] # 1
+        ignitionInfo = [] # 239
+        movement = [] # 240
+        instantMovement = [] # 303
+        vehicleSpeedIo = [] # 37
+        externalVoltage = [] # 66
         v463 = []
         v464 = []
 
@@ -138,6 +142,18 @@ def parse_codec8_extended(data, imei):
                     if io_id == 239 and io_value != 0:
                         ignitionInfo.append(io_value)
                         
+                    if io_id == 240:  # movement suele ser 0/1, si quieres guarda también 0 quita el != 0
+                        movement.append(io_value)
+                        
+                    if io_id == 303:  # instant movement suele ser 0/1
+                        instantMovement.append(io_value)
+                        
+                    if io_id == 37 and io_value != 0:   # vehicle speed (IO), a veces puede ser 0
+                        vehicleSpeedIo.append(io_value)
+                        
+                    if io_id == 66 and io_value != 0:   # external voltage (mV normalmente)
+                        externalVoltage.append(io_value)
+                        
                     if io_id == 463 and io_value != 0:
                         v463.append(io_value)
                         
@@ -193,11 +209,15 @@ def parse_codec8_extended(data, imei):
                 "fuelInfo": get_io_value(latest_avl["io_elements"], 270),
                 "alarmInfo": get_io_value(latest_avl["io_elements"], 1),
                 "ignitionInfo": get_io_value(latest_avl["io_elements"], 239),
+                "movement": get_io_value(latest_avl["io_elements"], 240),
+                "instantMovement": get_io_value(latest_avl["io_elements"], 303),
+                "vehicleSpeedIo": get_io_value(latest_avl["io_elements"], 37),
+                "externalVoltage": get_io_value(latest_avl["io_elements"], 66),
                 "v463": get_io_value(latest_avl["io_elements"], 463),
                 "v464": get_io_value(latest_avl["io_elements"], 464)
             }
         else:
-            averages = {
+            latest_data  = {
                 "imei": "N/A",
                 "latitude": 0,
                 "longitude": 0,
@@ -207,6 +227,10 @@ def parse_codec8_extended(data, imei):
                 "fuelInfo": 0,
                 "alarmInfo": 0,
                 "ignitionInfo": 0,
+                "movement": 0,
+                "instantMovement": 0,
+                "vehicleSpeedIo": 0,
+                "externalVoltage": 0,
                 "v463": 0,
                 "v464": 0
             }
