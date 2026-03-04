@@ -8,10 +8,10 @@ on:
 permissions:
   contents: read
   packages: write
-
+ 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/fmc125-teltonika-scripts
+  IMAGE_NAME: proyectosicm/fmc125-teltonika-scripts
 
 jobs:
   build_push_deploy:
