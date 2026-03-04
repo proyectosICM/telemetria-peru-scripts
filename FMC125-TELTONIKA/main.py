@@ -1,6 +1,5 @@
 import argparse
 from socket_server import start_server
-from gui import run_gui 
 from threading import Event
 
 def run_from_console():
@@ -13,6 +12,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.gui:
+        from gui import run_gui
         run_gui()
     else:
         run_from_console()
