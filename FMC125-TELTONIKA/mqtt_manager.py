@@ -5,6 +5,7 @@ import time
 def on_connect(client, userdata, flags, rc):
     pass  
     #print(f"Connected with result code {rc}")
+    #
 
 def send_to_mqtt(data, broker="192.168.0.204", port=1883, topic="prueba"):
     def on_publish(client, userdata, mid):
